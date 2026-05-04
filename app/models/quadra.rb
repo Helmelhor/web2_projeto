@@ -1,0 +1,2 @@
+class Quadra < ApplicationRecord
+end
