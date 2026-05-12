@@ -1,0 +1,24 @@
+<h2>Quadras</h2>
+<ul>
+  <% @quadras.each do |quadra| %>
+    <li>
+      <%= quadra.nome %> - <%= quadra.cidade %>
+      <!-- botar alguma coisa aqui depous -->
+    </li>
+  <% end %>
+</ul>
+
+<h3>Nova Quadra</h3>
+<%= form_with(model: @quadra, local: true) do |f| %>
+  <%= f.text_field :nome, placeholder: "Nome", required: true %><br>
+  <%= f.text_field :endereco, placeholder: "Endereço", required: true %><br>
+  <%= f.text_field :cidade, placeholder: "Cidade", required: true %><br>
+  <%= f.file_field :foto_url, placeholder: "URL da Foto" %><br>
+  <%= f.text_area :descricao, placeholder: "Descrição" %><br>
+  <%= f.text_field :tipo_piso, placeholder: "Tipo de Piso (ex: Asfalto)" %><br>
+  <%= f.label :tem_iluminacao, "Tem Iluminação?" %>
+  <%= f.check_box :tem_iluminacao %><br>
+  <%= f.submit "Criar Quadra" %>
+<% end %>
+
+<button onclick="window.location.href='/home/index'">voltar</button>

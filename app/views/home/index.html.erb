@@ -1,25 +1,447 @@
-<h1>Página Inicial</h1>
-<p>kaiky, aqui pode ser nossa landing page</p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasketHub - Encontre Quadras de Basketball</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<h2>Quadras</h2>
-<ul>
-  <% @quadras.each do |quadra| %>
-    <li>
-      <%= quadra.nome %> - <%= quadra.cidade %>
-      <!-- botar alguma coisa aqui depous -->
-    </li>
-  <% end %>
-</ul>
+    :root {
+      --orange-primary: #FF8C00;
+      --orange-dark: #E67E00;
+      --orange-light: #FFB84D;
+      --dark-bg: #0F1419;
+      --card-bg: #1A1F2E;
+      --text-light: #E0E0E0;
+      --text-muted: #A0A0A0;
+    }
 
-<h3>Nova Quadra</h3>
-<%= form_with(model: Quadra.new, url: quadras_path) do |f| %>
-  <%= f.text_field :nome, placeholder: "Nome", required: true %><br>
-  <%= f.text_field :endereco, placeholder: "Endereço", required: true %><br>
-  <%= f.text_field :cidade, placeholder: "Cidade", required: true %><br>
-  <%= f.file_field :foto_url, placeholder: "URL da Foto" %><br>
-  <%= f.text_area :descricao, placeholder: "Descrição" %><br>
-  <%= f.text_field :tipo_piso, placeholder: "Tipo de Piso (ex: Asfalto)" %><br>
-  <%= f.label :tem_iluminacao, "Tem Iluminação?" %>
-  <%= f.check_box :tem_iluminacao %><br>
-  <%= f.submit "Criar" %>
-<% end %>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    
+    header {
+      background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-dark) 100%);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo::before {
+      content: "🏀";
+      font-size: 2rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 2rem;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2a3a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+    }
+
+    .hero-content {
+      text-align: center;
+      max-width: 800px;
+      z-index: 10;
+      padding: 2rem;
+    }
+
+    .hero-content h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--orange-light) 0%, var(--orange-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: slideDown 0.8s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content p {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      animation: slideDown 0.8s ease 0.2s both;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      animation: slideDown 0.8s ease 0.4s both;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-dark) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(255, 140, 0, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--orange-primary);
+      border: 2px solid var(--orange-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--orange-primary);
+      color: white;
+    }
+
+    
+    .features {
+      max-width: 1200px;
+      margin: -100px auto 0;
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      position: relative;
+      z-index: 20;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid rgba(255, 140, 0, 0.2);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--orange-primary);
+      box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      color: var(--orange-light);
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Quadras Section */
+    .quadras-section {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: var(--text-light);
+    }
+
+    .section-title span {
+      color: var(--orange-primary);
+    }
+
+    .quadras-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .quadra-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 140, 0, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .quadra-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(255, 140, 0, 0.3);
+      border-color: var(--orange-primary);
+    }
+
+    .quadra-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, var(--orange-primary), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    .quadra-info {
+      padding: 1.5rem;
+    }
+
+    .quadra-info h3 {
+      color: var(--orange-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .quadra-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stars {
+      color: var(--orange-primary);
+      margin: 0.5rem 0;
+    }
+
+    
+    .cta-section {
+      background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-dark) 100%);
+      margin: 4rem 0;
+      padding: 4rem 2rem;
+      text-align: center;
+      border-radius: 20px;
+    }
+
+    .cta-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .cta-section p {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
+    }
+
+    /* Footer */
+    footer {
+      background: #0a0e14;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 140, 0, 0.1);
+    }
+
+    footer p {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-content p {
+        font-size: 1rem;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .hero::before, .hero::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">BasketHub</div>
+      <nav>
+        <a href="#footer" onclick="window.location.href='#footer'">Sobre</a>
+        <a href="#login" onclick="window.location.href='/login'">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Encontre Seu Próximo Jogo</h1>
+      <p>Conecte-se com apaixonados por basketball, compartilhe informações de quadras e organize partidas na sua região</p>
+      <div class="cta-buttons">
+        <button class="btn btn-primary" onclick="window.location.href='/login'">Explorar Quadras</button>
+        <button class="btn btn-secondary">Saber Mais</button>
+      </div>
+    </div>
+  </section>
+
+  
+  <section id="features" class="features">
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <h3>Encontre Quadras</h3>
+      <p>Descubra as melhores quadras de basketball perto de você com localização e endereço precisos</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📸</div>
+      <h3>Fotos Reais</h3>
+      <p>Veja fotos de alta qualidade das quadras, pisos, iluminação e toda infraestrutura disponível</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⭐</div>
+      <h3>Avaliações</h3>
+      <p>Leia avaliações e classificações de outros jogadores sobre a qualidade e experiência em cada quadra</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👥</div>
+      <h3>Faça Amigos</h3>
+      <p>Conecte-se com outros jogadores, organize partidas e crie uma comunidade de basketball</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Organize Partidas</h3>
+      <p>Publique partidas planejadas, convide amigos e reúna a galera para jogos incríveis</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>App Intuitivo</h3>
+      <p>Interface simples e fácil de usar para encontrar informações sobre quadras em poucos cliques</p>
+    </div>
+  </section>
+  
+  
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+    <section class="cta-section">
+      <h2>Pronto para Jogar?</h2>
+      <p>Junte-se à nossa comunidade de basketball e comece a explorar as melhores quadras agora</p>
+      <button class="btn btn-primary" onclick="window.location.href='/login'">Começar Agora</button>
+    </section>
+  </div>
+
+  
+  <footer id="footer">
+    <p>&copy; 2026 BasketHub - Seu lugar para encontrar quadras de basketball</p>
+    <p>Criado para apaixonados por basketball</p>
+  </footer>
+</body>
+</html>

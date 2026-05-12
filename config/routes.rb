@@ -3,7 +3,14 @@ Rails.application.routes.draw do
   resources :quadras
   resources :users
   resources :comments
+
   get "home/index"
+  get "blog", to: "home#blog"
+  get "login", to: "home#login"
+  post "login", to: "users#login"
+  delete "logout", to: "users#logout"
+  get "registrar", to: "home#registrar"
+  post "registrar", to: "users#registrar"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Coliseum</title>
+  <style>
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --orange-primary: #FF8C00; --orange-dark: #E67E00; --orange-light: #FFB84D;
+      --dark-bg: #0F1419; --card-bg: #1A1F2E; --text-light: #E0E0E0; --text-muted: #A0A0A0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg); color: var(--text-light); line-height: 1.6;
+      overflow-x: hidden; display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; position: relative;
+    }
+
+    /* Efeitos de fundo */
+    body::before {
+      content: ""; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, transparent 70%);
+      border-radius: 50%; animation: float 6s ease-in-out infinite; z-index: 1;
+    }
+    body::after {
+      content: ""; position: absolute; bottom: -100px; left: -100px; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+      border-radius: 50%; animation: float 8s ease-in-out infinite reverse; z-index: 1;
+    }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Estilização do Container */
+    .login-container {
+      background: var(--card-bg); padding: 3rem 2.5rem; border-radius: 15px; width: 100%;
+      max-width: 420px; border: 1px solid rgba(255, 140, 0, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 10; backdrop-filter: blur(10px); animation: slideDown 0.6s ease;
+    }
+    .login-header { text-align: center; margin-bottom: 2rem; }
+    .logo { font-size: 2rem; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .logo::before { content: "🏀"; font-size: 2.2rem; }
+    .login-header h1 { font-size: 1.8rem; color: var(--text-light); margin-bottom: 0.5rem; }
+    .login-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Estilização do Formulário */
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    .form-group label { display: block; color: var(--text-light); margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 500; }
+    .form-control {
+      width: 100%; padding: 0.8rem 1.2rem; background: var(--dark-bg); border: 1px solid rgba(255, 140, 0, 0.2);
+      border-radius: 8px; color: var(--text-light); font-size: 1rem; transition: all 0.3s ease; outline: none;
+    }
+    .form-control::placeholder { color: var(--text-muted); opacity: 0.5; }
+    .form-control:focus { border-color: var(--orange-primary); box-shadow: 0 0 10px rgba(255, 140, 0, 0.2); background: rgba(255, 140, 0, 0.02); }
+
+    /* Botões e Links */
+    .btn { width: 100%; padding: 1rem 2rem; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; display: inline-block; margin-top: 1rem; }
+    .btn-primary { background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-dark) 100%); color: white; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255, 140, 0, 0.6); }
+    .login-footer { margin-top: 2rem; text-align: center; font-size: 0.95rem; color: var(--text-muted); }
+    .login-footer a { color: var(--orange-light); text-decoration: none; font-weight: 500; transition: all 0.3s; }
+    .login-footer a:hover { color: var(--orange-primary); text-decoration: underline; }
+    .forgot-password { display: block; text-align: right; font-size: 0.85rem; color: var(--orange-light); text-decoration: none; margin-top: 0.5rem; transition: color 0.3s; }
+    .forgot-password:hover { color: var(--orange-primary); }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-header">
+      <div class="logo"></div>
+      <h1>Login</h1>
+      <p>Acesse o painel para gerenciar suas quadras</p>
+    </div>
+
+    <%= form_with url: login_path, method: :post, local: true do |f| %>
+      <div class="form-group">
+        <%= label_tag :email, "E-mail" %>
+        <%= email_field_tag :email, nil, class: "form-control", placeholder: "Digite seu e-mail", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= label_tag :password, "Senha" %>
+        <%= password_field_tag :password, nil, class: "form-control", placeholder: "••••••••", required: true %>
+        /* ver depois */
+        <a href="#" class="forgot-password">Esqueceu a senha?</a>
+      </div>
+
+      <div>
+        <%= submit_tag "Entrar", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="login-footer">
+      <p>Ainda não tem uma conta? <%= link_to "Cadastre-se", "/registrar" %></p>
+    </div>
+  </div>
+
+</body>
+</html>
