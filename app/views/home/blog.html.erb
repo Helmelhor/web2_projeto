@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Feed Coliseum</title>
+  <title>Feed</title>
   <style>
     /* Variáveis e Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -122,8 +122,9 @@
 
   <nav class="navbar">
     <div class="nav-content">
-      <a href="/home/index" class="nav-logo">🏀 Coliseum</a>
-      <a href="/home/index" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.9rem;">Voltar</a>
+      <a href="/home/index" class="nav-logo">🏀 Bem vindo <%= current_user.nome %>!!</a>
+      <!-- Lembrete: Logout precisa usar turbo_method: :delete se for Rails 7+ -->
+      <%= link_to "Logout", logout_path, data: { turbo_method: :delete }, class: "btn btn-primary", style: "padding: 0.4rem 1rem; font-size: 0.9rem;" %>
     </div>
   </nav>
 
@@ -131,7 +132,8 @@
     
     <div class="create-post-box">
       <div class="create-header">
-        <div class="avatar">U</div> <%= form_with(model: @quadra || Quadra.new, local: true, class: "full-width") do |f| %>
+        <div class="avatar"><%= current_user.nome.first.upcase rescue "U" %></div> 
+        <%= form_with(model: @quadra || Quadra.new, local: true, class: "full-width") do |f| %>
           <div class="create-form-grid">
             <div class="full-width">
               <%= f.text_field :nome, class: "form-control", placeholder: "Qual o nome da quadra?", required: true %>
@@ -156,7 +158,8 @@
           
           <div class="create-footer">
             <div style="color: var(--orange-primary); cursor: pointer; font-size: 1.2rem;" title="Adicionar Foto">
-              📷 </div>
+              📷 
+            </div>
             <%= f.submit "Postar", class: "btn btn-primary" %>
           </div>
         <% end %>
@@ -167,21 +170,27 @@
       <% @quadras.order(created_at: :desc).each do |quadra| %>
         <article class="post">
           <div class="avatar">
-            <%= quadra.nome.first.upcase rescue "Q" %>
+            <!-- Puxa a primeira letra do dono do post -->
+            <%= quadra.user.nome.first.upcase rescue "Q" %>
           </div>
           
           <div class="post-content">
             <div class="post-author-row">
               <div class="author-name">
-                <%= quadra.nome %>
-                <span class="author-handle">📍 <%= quadra.cidade %></span>
-                <span class="author-handle">· <%= time_ago_in_words(quadra.created_at) %> atrás</span>
+                <!-- Exibe o nome do Dono do Post e qual quadra ele adicionou -->
+                <%= quadra.user.nome rescue "Usuário" %>
+                <span class="author-handle">adicionou a quadra <strong><%= quadra.nome %></strong></span>
+                <br>
+                <span class="author-handle">📍 <%= quadra.cidade %> · <%= time_ago_in_words(quadra.created_at) %> atrás</span>
               </div>
               
-              <div class="post-options">
-                <%= link_to 'Editar', edit_quadra_path(quadra) %>
-                <%= link_to 'Excluir', quadra, data: { turbo_method: :delete, turbo_confirm: 'Deseja apagar este post?' }, class: "danger" %>
-              </div>
+              <!-- Só o dono da quadra vê a opção de Editar e Excluir -->
+              <% if quadra.user == current_user %>
+                <div class="post-options">
+                  <%= link_to 'Editar', edit_quadra_path(quadra) %>
+                  <%= link_to 'Excluir', quadra, data: { turbo_method: :delete, turbo_confirm: 'Deseja apagar este post?' }, class: "danger" %>
+                </div>
+              <% end %>
             </div>
 
             <div class="post-text">
@@ -215,9 +224,12 @@
                     </div>
                     <div class="comment-text"><%= comment.texto %></div>
                     
-                    <div style="margin-top: 0.5rem; text-align: right;">
-                      <%= link_to 'Apagar', [quadra, comment], data: { turbo_method: :delete }, style: "color: #f4212e; font-size: 0.75rem; text-decoration: none;" %>
-                    </div>
+                    <!-- Botão apagar: aparece se o usuário logado fez o comentário OU se o usuário logado é o dono da quadra -->
+                    <% if comment.user == current_user || quadra.user == current_user %>
+                      <div style="margin-top: 0.5rem; text-align: right;">
+                        <%= link_to 'Apagar', [quadra, comment], data: { turbo_method: :delete }, style: "color: #f4212e; font-size: 0.75rem; text-decoration: none;" %>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
               <% end %>
@@ -228,10 +240,6 @@
                 <%= f.select :nota, [1, 2, 3, 4, 5], { prompt: "⭐" }, class: "form-control nota-select", required: true %>
                 <%= f.text_field :texto, class: "form-control", placeholder: "Escreva sua avaliação...", required: true %>
                 
-                <% if session[:user_id] %>
-                  <%= f.hidden_field :user_id, value: session[:user_id] %>
-                <% end %>
-
                 <button type="submit" class="btn-send" title="Enviar">➤</button>
               <% end %>
             </div>
@@ -247,6 +255,5 @@
     <% end %>
 
   </div>
-
 </body>
 </html>
