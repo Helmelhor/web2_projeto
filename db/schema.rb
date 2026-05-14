@@ -10,27 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_14_184624) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_14_195316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "comments", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "nota", null: false
+    t.integer "nota"
+    t.integer "parent_id"
     t.bigint "quadra_id", null: false
     t.text "texto", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["quadra_id"], name: "index_comments_on_quadra_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "quadra_id", null: false
+    t.bigint "likeable_id", null: false
+    t.string "likeable_type", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["quadra_id"], name: "index_likes_on_quadra_id"
+    t.index ["likeable_type", "likeable_id"], name: "index_likes_on_likeable"
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
@@ -59,7 +62,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_14_184624) do
 
   add_foreign_key "comments", "quadras"
   add_foreign_key "comments", "users"
-  add_foreign_key "likes", "quadras"
   add_foreign_key "likes", "users"
   add_foreign_key "quadras", "users"
 end

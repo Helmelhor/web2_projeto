@@ -8,7 +8,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
 
-  def liked?(quadra)
-    likes.exists?(quadra_id: quadra.id)
+  def liked?(item)
+    likes.exists?(likeable: item)
   end
 end

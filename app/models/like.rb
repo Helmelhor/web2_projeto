@@ -1,4 +1,6 @@
 class Like < ApplicationRecord
   belongs_to :user
-  belongs_to :quadra
+  belongs_to :likeable, polymorphic: true
+
+  validates :user_id, uniqueness: { scope: [ :likeable_type, :likeable_id ], message: "Você já curtiu isso!" }
 end

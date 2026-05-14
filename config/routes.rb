@@ -19,6 +19,8 @@ Rails.application.routes.draw do
     resource :like, only: [ :create, :destroy ]
   end
 
+  post "likes/:likeable_type/:likeable_id", to: "likes#create", as: :like
+  delete "likes/:likeable_type/:likeable_id", to: "likes#destroy", as: :unlike
 
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

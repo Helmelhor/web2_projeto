@@ -2,12 +2,24 @@ class CommentsController < ApplicationController
   def create
     @quadra = Quadra.find(params[:quadra_id])
     @comment = @quadra.comments.build(comment_params)
-    @comment.user_id = current_user.id # Puxando do seu sistema de login
+    @comment.user = current_user
 
     if @comment.save
-      redirect_back fallback_location: home_index_path, notice: "Avaliação adicionada!"
+      redirect_back fallback_location: root_path, notice: "Comentário enviado!"
     else
-      redirect_back fallback_location: home_index_path, alert: "Erro ao adicionar avaliação."
+      redirect_back fallback_location: root_path, alert: "Erro ao comentar."
+    end
+  end
+
+
+  def update
+    @quadra = Quadra.find(params[:quadra_id])
+    @comment = @quadra.comments.find(params[:id])
+
+    if @comment.user == current_user && @comment.update(comment_params)
+      redirect_back fallback_location: root_path, notice: "Comentário atualizado."
+    else
+      redirect_back fallback_location: root_path, alert: "Erro ao editar."
     end
   end
 
@@ -15,18 +27,18 @@ class CommentsController < ApplicationController
     @quadra = Quadra.find(params[:quadra_id])
     @comment = @quadra.comments.find(params[:id])
 
-    # Apaga se for o dono do comentário OU o dono da quadra
     if @comment.user == current_user || @quadra.user == current_user
       @comment.destroy
-      redirect_back fallback_location: home_index_path, notice: "Avaliação apagada."
+      redirect_back fallback_location: root_path, notice: "Comentário apagado."
     else
-      redirect_back fallback_location: home_index_path, alert: "Você não tem permissão."
+      redirect_back fallback_location: root_path, alert: "Você não tem permissão."
     end
   end
 
   private
 
   def comment_params
-    params.require(:comment).permit(:nota, :texto)
+    # Liberamos o parent_id para aceitar respostas
+    params.require(:comment).permit(:nota, :texto, :parent_id)
   end
 end
