@@ -40,6 +40,6 @@ class QuadrasController < ApplicationController
   private
 
   def quadra_params
-    params.require(:quadra).permit(:nome, :endereco, :cidade, :foto_url, :descricao, :tipo_piso, :tem_iluminacao)
+    params.require(:quadra).permit(:nome, :endereco, :cidade, :descricao, :tipo_piso, :tem_iluminacao, :foto)
   end
 end

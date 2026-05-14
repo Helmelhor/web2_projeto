@@ -72,7 +72,7 @@
   <nav class="navbar">
     <div class="nav-content">
       <a href="/home/index" class="nav-logo">🏀 Bem vindo <%= current_user.nome %>!!</a>
-      <%= link_to "Logout", logout_path, data: { turbo_method: :delete }, class: "btn btn-primary" %>
+      <%= link_to "Logout", logout_path, data: { turbo_method: :delete }, class: "btn btn-primary", style: "padding: 0.4rem 1rem; font-size: 0.9rem;" %>
     </div>
   </nav>
 
@@ -93,8 +93,16 @@
               <%= f.check_box :tem_iluminacao %> <%= f.label :tem_iluminacao, "Tem iluminação?" %>
             </div>
           </div>
+          
           <div class="create-footer">
-            <div style="color: var(--orange-primary); font-size: 1.2rem;">📷</div>
+            <!-- Upload: botão separado do input; mostra confirmação quando selecionada -->
+            <div class="upload-group" style="display:flex; align-items:center; gap:0.6rem;">
+              <button type="button" class="btn btn-primary" onclick="document.getElementById('quadra_foto_input').click()">
+                📷 Adicionar Foto
+              </button>
+              <span id="foto-confirm" style="color: var(--orange-primary); font-size:0.9rem; display:none;">📸 Foto selecionada</span>
+              <%= f.file_field :foto, id: "quadra_foto_input", accept: "image/*", style: "display: none;", onchange: "document.getElementById('foto-confirm').style.display='inline'; document.getElementById('foto-confirm').textContent = '📸 ' + (this.files[0] ? this.files[0].name : 'Foto selecionada');" %>
+            </div>
             <%= f.submit "Postar", class: "btn btn-primary" %>
           </div>
         <% end %>
@@ -124,6 +132,13 @@
             </div>
 
             <div class="post-text"><%= quadra.descricao %></div>
+
+            <!-- AQUI EXIBE A FOTO SE ELA EXISTIR -->
+            <% if quadra.foto.attached? %>
+              <div style="margin-bottom: 1rem; border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color);">
+                <%= image_tag quadra.foto, style: "width: 100%; max-height: 400px; object-fit: cover; display: block;" %>
+              </div>
+            <% end %>
 
             <div class="post-tags">
               <span class="tag">🛣️ <%= quadra.endereco %></span>
@@ -159,10 +174,8 @@
                       <% if comment.nota.present? %><span class="comment-nota">⭐ <%= comment.nota %>/5</span><% end %>
                     </div>
                     
-                    <!-- Texto do Comentário -->
                     <div id="comment-text-<%= comment.id %>" class="comment-text"><%= comment.texto %></div>
                     
-                    <!-- Formulário de Edição (Escondido por Padrão) -->
                     <% if comment.user == current_user %>
                       <div id="edit-form-<%= comment.id %>" style="display:none; margin-bottom: 0.5rem;">
                         <%= form_with(model: [quadra, comment], local: true, class: "new-comment") do |f| %>
@@ -172,10 +185,7 @@
                       </div>
                     <% end %>
 
-                    <!-- Ações do Comentário (Like, Responder, Editar, Apagar) -->
                     <div class="post-options" style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
-                      
-                      <!-- Botão Like para Comentário -->
                       <% if current_user.liked?(comment) %>
                         <%= button_to unlike_path("Comment", comment.id), method: :delete, class: "action-btn liked", form_class: "inline-form", style: "font-size: 0.8rem;" do %>
                           ❤️ <%= comment.likes.count %>
@@ -197,7 +207,6 @@
                       <% end %>
                     </div>
 
-                    <!-- Formulário de Resposta (Escondido por Padrão) -->
                     <div id="reply-form-<%= comment.id %>" style="display:none;">
                       <%= form_with(model: [quadra, Comment.new], local: true, class: "new-comment", style: "width: 100%;") do |f| %>
                         <%= f.hidden_field :parent_id, value: comment.id %>
@@ -206,7 +215,7 @@
                       <% end %>
                     </div>
 
-                    <!-- Loop para exibir as Respostas deste Comentário -->
+                    <!-- Respostas -->
                     <% comment.replies.each do |reply| %>
                       <div class="comment-item reply-item">
                         <div class="comment-avatar" style="width: 24px; height: 24px; font-size: 0.6rem;"><%= reply.user.nome.first.upcase rescue "R" %></div>
@@ -215,7 +224,6 @@
                           
                           <div id="comment-text-<%= reply.id %>" class="comment-text" style="font-size: 0.85rem;"><%= reply.texto %></div>
                           
-                          <!-- Edição de Resposta -->
                           <% if reply.user == current_user %>
                             <div id="edit-form-<%= reply.id %>" style="display:none;">
                               <%= form_with(model: [quadra, reply], local: true, class: "new-comment") do |f| %>
@@ -226,7 +234,6 @@
                           <% end %>
 
                           <div class="post-options" style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.2rem;">
-                            <!-- Like na Resposta -->
                             <% if current_user.liked?(reply) %>
                               <%= button_to unlike_path("Comment", reply.id), method: :delete, class: "action-btn liked", form_class: "inline-form", style: "font-size: 0.75rem;" do %>
                                 ❤️ <%= reply.likes.count %>
