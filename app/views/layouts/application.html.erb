@@ -6,24 +6,64 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Web2">
     <meta name="mobile-web-app-capable" content="yes">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
     <%= yield %>
+
+    <script>
+      const socket = new WebSocket("ws://127.0.0.1:3000/cable")
+
+      socket.onopen = () => {
+        console.log("WebSocket conectado")
+
+        socket.send(JSON.stringify({
+          command: "subscribe",
+          identifier: JSON.stringify({
+            channel: "CommentsChannel"
+          })
+        }))
+      }
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+
+        console.log("DADOS COMPLETOS:", data)
+
+        // ignora apenas welcome e ping
+        if (
+          data.type === "welcome" ||
+          data.type === "ping" ||
+          data.type === "confirm_subscription"
+        ) {
+          return
+          }
+
+        const messages = document.getElementById("messages")
+
+        if (!messages) {
+          console.log("DIV messages não encontrada")
+          return
+        }
+
+        console.log("Mensagem recebida:", data.message.message)
+
+        messages.innerHTML += `
+          <p>${data.message.message}</p>
+        `
+      }
+    </script>
   </body>
 </html>
