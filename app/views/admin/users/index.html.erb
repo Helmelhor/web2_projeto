@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <style>
+    :root {
+      --orange-primary: #FF8C00; --orange-dark: #E67E00; --dark-bg: #0F1419;
+      --card-bg: #1A1F2E; --text-light: #E0E0E0; --text-muted: #8899A6; --border-color: #2F3336;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: var(--dark-bg); color: var(--text-light); padding: 2rem; margin: 0; }
+    
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; color: white; display: inline-block; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: var(--orange-primary); }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-danger { background: transparent; border: 1px solid #f4212e; color: #f4212e; }
+    .btn-danger:hover { background: #f4212e; color: white; }
+    .btn-outline { border: 1px solid var(--border-color); color: var(--text-light); background: transparent; }
+    .btn-outline:hover { border-color: var(--orange-primary); color: var(--orange-primary); }
+    
+    /* Layout em duas colunas */
+    .admin-layout { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+    
+    /* Formulário */
+    .form-container { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 2rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; color: var(--text-light); font-size: 0.9rem; }
+    .form-control { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--dark-bg); color: white; outline: none; box-sizing: border-box; }
+    .form-control:focus { border-color: var(--orange-primary); }
+    
+    /* Tabela de Usuários */
+    .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
+    .admin-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .admin-table th, .admin-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+    .admin-table th { background: rgba(0,0,0,0.3); color: var(--orange-primary); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+    .admin-table tr:hover { background: rgba(255, 140, 0, 0.05); }
+    .actions { display: flex; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <h2>⚙️ Painel Admin: Gerenciar Usuários</h2>
+    <%= link_to "⬅ Voltar ao Feed", home_index_path, class: "btn btn-outline" %>
+  </div>
+
+  <div class="admin-layout">
+    
+    <div class="form-container">
+      <h3 style="color: var(--orange-light); margin-bottom: 1.5rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 0.5rem;">
+        <%= @user.new_record? ? "✨ Novo Usuário" : "✏️ Editar: #{@user.nome}" %>
+      </h3>
+
+      <%= form_with(model: [:admin, @user], local: true) do |f| %>
+        <div class="form-group">
+          <%= f.label :nome, "Nome Completo" %>
+          <%= f.text_field :nome, class: "form-control", required: true %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :email, "E-mail" %>
+          <%= f.email_field :email, class: "form-control", required: true %>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <%= @user.new_record? ? "Defina a senha do usuário:" : "Deixe em branco para manter a senha atual:" %>
+          </p>
+          <%= f.label :password, "Senha" %>
+          <%= f.password_field :password, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :password_confirmation, "Confirme a Senha" %>
+          <%= f.password_field :password_confirmation, class: "form-control" %>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+          <%= link_to "Cancelar", admin_users_path, class: "btn btn-outline", style: "flex: 1; text-align: center; padding: 0.8rem;" %>
+          <%= f.submit (@user.new_record? ? "Criar" : "Atualizar"), class: "btn btn-primary", style: "flex: 1;" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr style="<%= 'background: rgba(255,140,0,0.1);' if user == @user %>">
+              <td><span style="color: var(--text-muted);">#<%= user.id %></span></td>
+              <td><strong><%= user.nome %></strong></td>
+              <td><%= user.email %></td>
+              <td class="actions">
+                <%= link_to "Editar", edit_admin_user_path(user), class: "btn btn-outline", style: "padding: 0.3rem 0.6rem; font-size: 0.8rem;" %>
+                
+                <% if user != current_user %>
+                  <%= link_to "Apagar", admin_user_path(user), data: { turbo_method: :delete, turbo_confirm: "Apagar #{user.nome} e todas as suas postagens?" }, class: "btn btn-danger", style: "padding: 0.3rem 0.6rem; font-size: 0.8rem;" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+</html>
