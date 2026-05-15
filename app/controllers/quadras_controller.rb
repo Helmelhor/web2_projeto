@@ -12,6 +12,7 @@ class QuadrasController < ApplicationController
     @quadra.user = current_user
 
     if @quadra.save
+      PublisherService.publish({ evento: 'nova_quadra', quadra_id: @quadra.id })
       redirect_back fallback_location: home_index_path, notice: "Quadra postada com sucesso!"
     else
       render :new

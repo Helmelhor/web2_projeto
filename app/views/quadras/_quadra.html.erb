@@ -1,0 +1,21 @@
+<article class="post" id="quadra_<%= quadra.id %>" style="animation: fadeIn 1s;">
+  <div class="avatar"><%= quadra.user.nome.first.upcase rescue "Q" %></div>
+  
+  <div class="post-content">
+    <div class="post-author-row">
+      <div class="author-name">
+        <%= quadra.user.nome rescue "Usuário" %>
+        <span class="author-handle">adicionou a quadra <strong><%= quadra.nome %></strong></span><br>
+        <span class="author-handle">📍 <%= quadra.cidade %> · Agora mesmo</span>
+      </div>
+    </div>
+
+    <div class="post-text"><%= quadra.descricao %></div>
+
+    <div class="post-tags">
+      <span class="tag">🛣️ <%= quadra.endereco %></span>
+      <% if quadra.tipo_piso.present? %><span class="tag">🔲 <%= quadra.tipo_piso %></span><% end %>
+      <% if quadra.tem_iluminacao %><span class="tag">💡 Iluminada</span><% end %>
+    </div>
+  </div>
+</article>
