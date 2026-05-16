@@ -26,7 +26,7 @@ gem "dotenv-rails", groups: [ :development, :test ]
 gem "bcrypt", "~> 3.1.7"
 
 # pub/sub
-gem "bunny", "~> 2.19.0"
+gem "bunny", "~> 3.1.0"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
