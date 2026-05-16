@@ -1,8 +1,20 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
-fi
+# Remove o arquivo PID caso o container anterior tenha fechado de forma suja
+rm -f /rails/tmp/pids/server.pid
 
-exec "${@}"
+# Função para esperar o banco de dados ficar pronto
+echo "Aguardando o banco de dados (PostgreSQL) inicializar..."
+until pg_isready -h "$DATABASE_HOST" -U "$DATABASE_USER"; do
+  echo "Banco de dados indisponível, tentando novamente em 2 segundos..."
+  sleep 2
+done
+echo "Banco de dados pronto!"
+
+# Prepara o banco (cria e roda migrations)
+echo "Preparando o banco de dados..."
+bundle exec rails db:prepare
+
+# Executa o comando passado para o container
+exec "$@"
