@@ -15,8 +15,8 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   Rails.application.routes.draw do
   resources :quadras do
-    resources :comments, only: [ :create, :destroy ]
-    resource :like, only: [ :create, :destroy ]
+    resources :comments, only: [ :create, :update, :destroy ]
+    resource :like, only: [ :create, :update, :destroy ]
   end
 
   post "likes/:likeable_type/:likeable_id", to: "likes#create", as: :like

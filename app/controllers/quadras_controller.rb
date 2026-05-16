@@ -12,7 +12,7 @@ class QuadrasController < ApplicationController
     @quadra.user = current_user
 
     if @quadra.save
-      PublisherService.publish({ evento: 'nova_quadra', quadra_id: @quadra.id })
+      PublisherService.publish({ evento: "nova_quadra", quadra_id: @quadra.id })
       redirect_back fallback_location: home_index_path, notice: "Quadra postada com sucesso!"
     else
       render :new
@@ -20,15 +20,24 @@ class QuadrasController < ApplicationController
   end
 
   def edit
+    # Busca a quadra específica que o usuário quer editar
     @quadra = Quadra.find(params[:id])
+
+    # Segurança básica: Só deixa editar se o usuário logado for o dono da quadra
+    unless @quadra.user == current_user
+      redirect_to blog_path, alert: "Você não tem permissão para editar esta quadra."
+    end
   end
 
   def update
     @quadra = Quadra.find(params[:id])
+
+    # Atualiza os dados no banco
     if @quadra.update(quadra_params)
-      redirect_back fallback_location: home_index_path, notice: "Quadra atualizada com sucesso."
+      redirect_to blog_path, notice: "Quadra atualizada com sucesso!"
     else
-      render :edit
+      # Se der erro (ex: deixou o nome em branco), recarrega a tela de edição
+      render :edit, status: :unprocessable_entity
     end
   end
 

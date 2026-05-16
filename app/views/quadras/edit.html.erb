@@ -1,0 +1,197 @@
+<head>
+  <style>
+    /* Variáveis Globais de Cor */
+    :root {
+      --orange-primary: #FF8C00; 
+      --orange-dark: #E67E00; 
+      --dark-bg: #0F1419;
+      --card-bg: #1A1F2E; 
+      --text-light: #E0E0E0; 
+      --text-muted: #8899A6; 
+      --border-color: #2F3336;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: var(--dark-bg); 
+      color: var(--text-light); 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    /* Navegação */
+    .navbar { 
+      background: rgba(15, 20, 25, 0.9); 
+      border-bottom: 1px solid var(--border-color); 
+      padding: 1rem 2rem; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      backdrop-filter: blur(10px); 
+    }
+    .nav-content { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      max-width: 800px; 
+      margin: 0 auto; 
+    }
+    .nav-logo { 
+      color: var(--orange-primary); 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      text-decoration: none; 
+    }
+
+    /* Botões Padrões */
+    .btn { 
+      padding: 0.6rem 1.2rem; 
+      border-radius: 50px; /* Bordas arredondadas estilo rede social */
+      text-decoration: none; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: 0.2s; 
+      border: none; 
+    }
+    .btn-primary { background: var(--orange-primary); color: white; }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-secondary { background: transparent; border: 1px solid var(--text-muted); color: var(--text-light); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--text-light); }
+
+    /* Layout Central (Timeline) */
+    .timeline { 
+      max-width: 600px; 
+      margin: 2rem auto; 
+      padding: 0 1rem; 
+    }
+
+    /* Caixa de Edição */
+    .create-post-box { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border-color); 
+      border-radius: 16px; 
+      padding: 1.5rem; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .create-header { 
+      display: flex; 
+      gap: 1rem; 
+    }
+    .avatar { 
+      width: 48px; 
+      height: 48px; 
+      background: var(--orange-primary); 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      font-size: 1.2rem; 
+      color: white; 
+      flex-shrink: 0; 
+    }
+
+    /* Grid do Formulário */
+    .full-width { width: 100%; }
+    .create-form-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; /* Duas colunas para os campos menores */
+      gap: 1rem; 
+      margin-bottom: 1.5rem; 
+    }
+    .create-form-grid .full-width { 
+      grid-column: 1 / -1; /* Ocupa a linha toda */
+    }
+
+    /* Estilo dos Inputs */
+    .form-control { 
+      width: 100%; 
+      padding: 0.8rem; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-color); 
+      background: var(--dark-bg); 
+      color: var(--text-light); 
+      box-sizing: border-box; 
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .form-control:focus { 
+      border-color: var(--orange-primary); 
+      outline: none; 
+    }
+    textarea.form-control { 
+      resize: vertical; 
+      min-height: 100px; 
+    }
+
+    /* Rodapé do Formulário */
+    .create-footer { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding-top: 1rem; 
+      border-top: 1px solid var(--border-color); 
+    }
+    .upload-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="/home/index" class="nav-logo">🏀 BasketHub</a>
+      <%= link_to "Voltar para o Feed", blog_path, class: "btn btn-secondary", style: "padding: 0.4rem 1rem; font-size: 0.9rem;" %>
+    </div>
+  </nav>
+
+  <div class="timeline">
+    <h2 style="text-align: center; color: var(--orange-primary); margin-bottom: 1.5rem;">Editar Quadra</h2>
+    
+    <div class="create-post-box">
+      <div class="create-header">
+        <div class="avatar"><%= @quadra.user.nome.first.upcase rescue "U" %></div> 
+        
+        <%= form_with(model: @quadra, local: true, class: "full-width") do |f| %>
+          <div class="create-form-grid">
+            <div class="full-width">
+              <%= f.text_field :nome, class: "form-control", placeholder: "Nome da quadra", required: true %>
+            </div>
+            <div>
+              <%= f.text_field :endereco, class: "form-control", placeholder: "Endereço" %>
+            </div>
+            <div>
+              <%= f.text_field :cidade, class: "form-control", placeholder: "Cidade" %>
+            </div>
+            <div class="full-width">
+              <%= f.text_area :descricao, class: "form-control", placeholder: "Descreva as condições..." %>
+            </div>
+            <div>
+              <%= f.text_field :tipo_piso, class: "form-control", placeholder: "Piso (Ex: Asfalto)" %>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; padding-left: 0.5rem; font-size: 0.9rem;">
+              <%= f.check_box :tem_iluminacao %> 
+              <%= f.label :tem_iluminacao, "Tem iluminação?", style: "cursor: pointer;" %>
+            </div>
+          </div>
+          
+          <div class="create-footer">
+            <div class="upload-group">
+              <button type="button" class="btn btn-secondary" style="border-radius: 8px;" onclick="document.getElementById('quadra_foto_input').click()">
+                📷 Alterar Foto
+              </button>
+              <span id="foto-confirm" style="color: var(--orange-primary); font-size:0.9rem; display:none;">📸 Nova foto selecionada</span>
+              
+              <%= f.file_field :foto, id: "quadra_foto_input", accept: "image/*", style: "display: none;", onchange: "document.getElementById('foto-confirm').style.display='inline'; document.getElementById('foto-confirm').textContent = '📸 ' + (this.files[0] ? this.files[0].name : 'Nova foto selecionada');" %>
+            </div>
+            
+            <%= f.submit "Salvar Alterações", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</body>
