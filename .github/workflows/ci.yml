@@ -1,0 +1,50 @@
+name: Rails CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - dockerizado
+
+  pull_request:
+    branches:
+      - main
+      - develop
+      - dockerizado
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: web2_dev
+        ports:
+          - 5432:5432
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:root@localhost:5432/web2_dev
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Preparar banco
+        run: |
+          bin/rails db:create
+          bin/rails db:schema:load
+
+      - name: Executar testes
+        run: bundle exec rspec
