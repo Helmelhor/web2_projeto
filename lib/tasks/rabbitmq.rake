@@ -4,6 +4,9 @@ namespace :rabbitmq do
     require "json"
     require "bunny"
 
+    $stdout.sync = true
+    $stderr.sync = true
+
     puts "⏳ Iniciando conexão com RabbitMQ..."
 
     connection = Bunny.new(
@@ -38,21 +41,31 @@ namespace :rabbitmq do
     puts " [*] Aguardando eventos do BasketHub... (Pressione CTRL+C para sair)"
 
     queue.subscribe(block: true) do |delivery_info, properties, body|
-      dados = JSON.parse(body)
+      begin
+        dados = JSON.parse(body)
+      rescue JSON::ParserError => e
+        puts "⚠️ Mensagem ignorada (JSON invalido): #{e.message}"
+        next
+      end
 
-      if dados["evento"] == "nova_quadra"
+      next unless dados["evento"] == "nova_quadra"
+
+      begin
         # Buscamos a quadra no banco
         quadra = Quadra.find(dados["quadra_id"])
-
-        # Renderizamos o HTML parcial da quadra
-        html = ApplicationController.render(
-          partial: "quadras/quadra",
-          locals: { quadra: quadra, current_user: nil }
-        )
-
-        puts "\n[NOVA QUADRA] 🏀 Transmitindo quadra '#{quadra.nome}' via ActionCable!"
-        ActionCable.server.broadcast("feed_channel", { html: html })
+      rescue ActiveRecord::RecordNotFound
+        puts "⚠️ Mensagem ignorada (quadra nao encontrada): id=#{dados["quadra_id"]}"
+        next
       end
+
+      # Renderizamos o HTML parcial da quadra
+      html = ApplicationController.render(
+        partial: "quadras/quadra",
+        locals: { quadra: quadra, current_user: nil }
+      )
+
+      puts "\n[NOVA QUADRA] 🏀 Transmitindo quadra '#{quadra.nome}' via ActionCable!"
+      ActionCable.server.broadcast("feed_channel", { html: html })
     end
   rescue Interrupt => _
     connection.close
