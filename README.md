@@ -2,6 +2,8 @@
 
 **BasketHub** é uma plataforma web colaborativa projetada para conectar a comunidade de basquete. O sistema permite que os usuários cadastrem, avaliem e descubram quadras de basquete pela cidade, detalhando infraestrutura (tipo de piso, iluminação) e compartilhando fotos e comentários.
 
+## Link para o projeto em produção hospedado na AWS
+http://98.83.76.50:8080/ 
 
 ## ⚙️ Como executar o projeto localmente
 
